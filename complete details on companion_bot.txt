@@ -1,0 +1,717 @@
+Creating a companion robot like Eilik requires breaking down the different 
+functionalities and writing code for each component and behavior. 
+Here’s a step-by-step breakdown of how to develop the core features of your 
+pocket-sized, budget-friendly Eilik-like robot using Python, ROS2, and
+ hardware components.
+
+Features Overview:
+1.Facial Expressions: Show emotions (happy, sad, bored, etc.) on an OLED display.
+2.Touch Response: Respond to touch on specific areas.
+3.Sound Reaction: React to loud sounds or music.
+4.Idle Behavior: Show a bored or sleeping face if no interaction occurs for 5 hours.
+5.Bluetooth Control: Use Bluetooth to control the bot via a mobile app.
+6.Movement: Tilt head or move small parts like arms with micro servos.
+(HERE I AM LOOKIGN FOR A POCKET FRIENDLY BOT SO I AM AVOIDING ARMS OF THE BOT)
+7.Low Battery Indicator: Warn about low battery levels and react accordingly.
+
+I want to prioritize my work in to two segments .Here is a detailed breakdown of your Eilik-like companion bot, divided into
+ Part 1: Structure and Mechanism and 
+Part 2: Software and Coding, with step-by-step guidance on how to implement both aspects.
+
+Part 1: Structure and Mechanism
+1. Bot Size and Design:
+Pocket-Friendly Size: Aim for a compact design, roughly the size of a palm (~10-12 cm tall). Use lightweight materials for easy portability.
+Enclosure: A small 3D-printed shell or acrylic case can house all the internal components (OLED display, sensors, microcontroller, battery).
+You can 3D-print a housing based on Eilik’s minimalistic design, with space for the display, buttons, and sensors.
+Include cutouts for charging ports, sensors, and LEDs.
+
+2. Core Components:
+(a) Microcontroller:
+Use ESP32 (preferred for Bluetooth capabilities) or a Raspberry Pi Zero W for more computational power.
+The microcontroller will manage the sensors, display, sound, and act as the brain of the bot.
+
+(b) Power Supply:
+Battery: A LiPo battery (3.7V) with a capacity of around 1000-1500 mAh will provide enough power for several hours of usage.
+Charging Circuit: Use a TP4056 charging module to handle charging and protection.
+
+(c) Display:
+Use a 0.96" OLED Display (128x64 pixels), connected via I2C, to show facial expressions and other visual outputs.
+
+(d) Sensors:
+Capacitive Touch Sensors (connected via GPIO pins): Detect when the user touches different parts of the bot.
+Microphone Module: To detect loud sounds or music.
+Proximity Sensor: (Optional) for detecting nearby objects or gestures.
+
+(e) Sound Module:
+Use a small piezo buzzer or small speaker with an I2S sound module (or DAC) for sound outputs (like beeps or simple music).
+
+(f) Motors:
+Micro Servo Motors: Use 2-3 micro servos for small, lifelike movements like nodding the head, moving the arms,
+ or other simple gestures.
+Servos should be controlled via PWM pins on the microcontroller.
+
+(g) Bluetooth Module:
+Use the built-in Bluetooth on ESP32 or add a Bluetooth module for the Raspberry Pi to enable communication with mobile devices.
+
+(h) LEDs:
+RGB LEDs: These can add colorful feedback (e.g., for emotions or status indications).
+
+3. Mechanical Assembly:
+Mounting the Display: Secure the OLED display in the front face of the bot's housing for easy visibility.
+Placing the Sensors: Place touch sensors on different parts of the bot's body (head, sides) for interaction. Attach the proximity
+ sensor near the base to detect motion.
+Motor Placement: Attach micro servos to move small arms or the head to mimic emotions or interactions.
+
+4. Connectivity:
+Wiring:
+Use jumper wires to connect the components to the microcontroller. Ensure good cable management inside the small housing.
+Use I2C for the OLED and sensors and GPIO pins for touch sensors, buttons, and servo motors.
+
+5. Tools and Materials:
+3D Printer: For creating the body and housing (optional but recommended).
+Soldering Kit: To solder connections securely, especially for the touch sensors and power connections.
+Jumper Wires: For connecting sensors, display, and motors to the microcontroller.
+Micro USB Cable: For powering and programming the microcontroller.
+
+Part 1: Structure and Mechanism (Detailed Enhancements)
+Component Selection:
+Microcontroller (ESP32/Raspberry Pi):
+
+1.ESP32 is preferred for lightweight operations, built-in Bluetooth/Wi-Fi, and a lower power consumption . The Raspberry Pi is an alternative for more powerful processing, suitable if you need more complex AI features or a camera module.
+Where to buy: ESP32 is available on platforms like Amazon or Adafruit.
+Why these components: ESP32’s small size allows for a pocket-friendly design, making it ideal for a compact bot like Eilik.
+
+2.Servo Motors (SG90):
+These are affordable (~$2 each) and lightweight, with enough torque for head/arm movement. You’ll need about 2-4 servos depending on the bot’s number of moving parts.
+Why SG90: It’s a micro-servo, allowing compact movement without taking up much space in the bot’s structure.
+
+3.Sensors:
+Touch Sensors: Use TTP223 capacitive touch sensors (~$1 each), compact and sensitive to light touch, suitable for detecting when the bot is touched on its head, arms, or body.
+Sound Sensors: A KY-038 sound sensor (~$2) can detect sound levels and trigger expressions like "surprise" when a loud noise is detected.
+Why these sensors: They’re budget-friendly and can easily integrate with ESP32/Raspberry Pi for basic input/output operations.
+
+4.OLED Display (128x64 Adafruit SSD1306):
+This small display (~$10) will serve as the "face" of the robot, showing various emotions and animations.
+Why OLED: Low power consumption, compact, and easy to integrate with microcontrollers.
+
+5.Microphone:
+For sound detection, an external microphone module (~$5) such as MAX9814 can be used to detect audio input.
+
+6.LiPo Battery and Charging Module:
+A 3.7V 1000mAh LiPo battery ($3) is enough to power the bot for several hours depending on usage.
+Why this setup: LiPo batteries are lightweight, rechargeable, and sufficient for small bots, while the TP4056 allows for easy recharging without removing the battery.
+
+Power Management:
+
+7.Battery Selection:
+Choose a 3.7V LiPo battery, and ensure your components can operate under this voltage (if not, use a boost converter to raise the voltage to 5V for components like the Raspberry Pi).
+Use a TP4056 LiPo charger for charging the battery safely via USB. Include an MT3608 step-up converter to ensure the voltage is boosted to 5V if required.
+Example: The OLED display and touch sensors can run directly on 3.3V from ESP32, while servos often need 5V.
+
+8.Wiring Diagram:
+Power Distribution: Connect the LiPo battery to the TP4056 charging module. The output from the module powers the microcontroller (ESP32 or Raspberry Pi). If you’re using servos, connect them via a 5V pin or step-up converter.
+Ensure all components share a common ground (GND).
+
+9.Voltage Regulation:
+For voltage-sensitive components, use voltage regulators or a step-up/down converter to match their specific voltage requirements (e.g., use a 7805 voltage regulator for 5V output).
+Diagram: Draw a wiring diagram showing how the battery connects to the controller and how each component (OLED, servos, sensors) receives power.
+
+10.Mechanical Assembly:
+3D Printed Body:
+Design a simple 3D-printed frame for your bot. Ensure there are dedicated sections for housing the microcontroller, OLED display (front face), sensors, and servo motors.
+Example: The OLED display sits flush on the front face of the bot, with touch sensors hidden underneath a thin layer of plastic or flexible material. The servos controlling arm/head movements are placed inside the body, with wires neatly routed to avoid tangling.
+Servo Placement:
+The servos should be securely mounted to allow smooth movement of the arms and head. Use brackets or 3D-printed holders to fix them in place. Ensure the connections between the servos and the moving parts (head, arms) are secure but flexible for smooth operation.
+
+Assembly Steps:
+1.Mount the OLED display on the front of the bot.
+2.Install the servos inside the bot's body for arm and head movements.
+3.Place the microcontroller and ensure all components are securely connected to the correct power sources.
+4.Wire up the sensors and place them under a thin plastic cover to ensure proper touch detection without them being visible.
+
+1. Wiring and Connection Tools
+Before starting the wiring process, you’ll need some basic tools to connect and solder the components together:
+
+->Soldering Iron and Solder: For permanent connections between wires and components.
+->Breadboard and Jumper Wires: If you’re prototyping the circuit before soldering, use a breadboard for easy plug-and-play connections.
+->Heat Shrink Tubing: To protect soldered wires from shorting and ensure durability.
+->Screwdrivers and Pliers: To fasten or adjust components during assembly.
+
+2. Connection Resources for Components
+->Microcontroller (ESP32 or Raspberry Pi Pico) Connections
+->ESP32 Pinout Diagram: ESP32 Pinout Resource
+
+->OLED Display (128x64 Adafruit SSD1306):
+->Connect VCC to 3.3V pin on ESP32.
+->GND to GND pin.
+->SCL to GPIO 22 (I2C Clock).
+->SDA to GPIO 21 (I2C Data).
+->Touch Sensors (TTP223):
+->Connect VCC to 3.3V on ESP32.
+->GND to GND.
+->Output pin SIG to any GPIO pin (e.g., GPIO 15 for one touch sensor).
+->Servo Motors (SG90):
+->Power the servos via an external 5V supply (since ESP32 can’t provide enough current).
+->Connect VCC to 5V, GND to GND.
+->Control pin to a GPIO (e.g., GPIO 18).
+->Sound Sensor (KY-038 or MAX9814):
+->VCC to 3.3V.
+->GND to GND.
+->OUT to GPIO 34 for reading the analog signal.
+->Raspberry Pi Pico Pinout: Raspberry Pi Pico Pinout Resource
+->Connections for Raspberry Pi Pico would be similar, except for different GPIO pin mappings.
+
+Power Supply and Charging Module
+->LiPo Battery (3.7V 1000mAh) should be connected to:
+->TP4056 Charging Module:
+->BAT+ and BAT- for the battery.
+->OUT+ and OUT- connected to the microcontroller’s power input (or boost converter if needed).
+->USB input to charge the battery when required.
+->Step-Up Voltage Converter (MT3608): This boosts the 3.7V from the LiPo battery to 5V for servos and any other 5V components.
+->Input from battery’s output.
+->Output to power the servos or Raspberry Pi.
+
+Wiring Diagram Resource:
+->For LiPo Battery and TP4056 wiring: TP4056 Module Guide
+->Boost Converter Wiring: MT3608 Step-Up Converter
+
+3. Specific Connection Diagrams
+A. Basic ESP32 Connections Diagram
+You can use this resource for a simple, breadboard-based diagram: ESP32 OLED and Sensor Connections
+B. OLED Display Wiring Guide
+Adafruit offers a comprehensive guide to wiring up the OLED display, including I2C configurations: Adafruit SSD1306 Guide
+C. Servo Motor Wiring
+Servo motor control using ESP32’s PWM functionality is explained here: Servo with ESP32
+
+4. Wiring Resources for Sensors and Actuators
+Touch Sensor Wiring (TTP223)
+Touch sensor can be connected using this basic setup: TTP223 Capacitive Touch Wiring
+Sound Sensor (KY-038 or MAX9814)
+Here’s how to connect the sound sensor for basic sound detection: Sound Sensor with ESP32
+
+5. ROS2 Integration Resources
+ESP32 with ROS2
+For using ESP32 with ROS2, install Micro-ROS to communicate directly with the ROS2 environment. Follow this tutorial to set it up:
+ESP32 Micro-ROS Integration
+ROS2 Package Creation Tutorial
+Follow this resource for creating your ROS2 package for integrating multiple sensors and modules: ROS2 Package Creation
+
+6. General Robot Wiring Resources
+For a more comprehensive view, you can check the following resources:
+
+Fritzing (Free software to draw and simulate wiring diagrams): Fritzing Download
+Instructables: Robot Wiring and Assembly Guide
+
+
+
+
+
+
+
+Part 2: Software and Coding
+Overview:
+You will be using ROS2 for this project, and all the code will be structured in a ROS2 package. Here’s the step-by-step guide to the coding part, with the necessary libraries, nodes, and functionality.
+
+Libraries and Tools:
+ROS2 (already installed) for managing nodes and communication.
+Python (main language for coding).
+Pygame (for sound and music handling).
+Adafruit_SSD1306 (for OLED display control).
+GPIO library (for sensor and motor control).
+SoundDevice (for microphone input).
+I2C and PWM libraries (for motor control).
+Install necessary libraries using pip:
+bash
+Copy code
+pip install adafruit-circuitpython-ssd1306 pygame sounddevice
+Step-by-Step Process for Creating the ROS2 Package
+1. Creating the ROS2 Package
+Navigate to your workspace:
+
+bash
+Copy code
+cd ~/ros2_ws/src
+Create the package:
+
+bash
+Copy code
+ros2 pkg create eilik_bot --build-type ament_python
+Navigate to the newly created package:
+
+bash
+Copy code
+cd eilik_bot
+Update the package.xml file to include necessary dependencies:
+
+xml
+Copy code
+<exec_depend>rclpy</exec_depend>
+<exec_depend>std_msgs</exec_depend>
+<exec_depend>sensor_msgs</exec_depend>
+<exec_depend>pygame</exec_depend>
+<exec_depend>adafruit-ssd1306</exec_depend>
+2. Coding the Nodes
+You will need to create several Python files for different functionalities like facial expressions, touch sensors, sound reaction, motor control, and Bluetooth. Each of these will run as a separate ROS2 node.
+
+Node 1: Facial Expression Node (face_node.py)
+This node handles the OLED display for showing different emotions and expressions.
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+from PIL import Image, ImageDraw
+import adafruit_ssd1306
+import busio
+import board
+from std_msgs.msg import String
+
+class FaceDisplayNode(Node):
+    def __init__(self):
+        super().__init__('face_display_node')
+        self.subscription = self.create_subscription(
+            String,
+            'face_expression',
+            self.update_face,
+            10)
+        self.subscription  # prevent unused variable warning
+
+        # Initialize OLED display
+        i2c = busio.I2C(board.SCL, board.SDA)
+        self.display = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
+        self.clear_display()
+
+    def clear_display(self):
+        self.display.fill(0)
+        self.display.show()
+
+    def draw_face(self, expression):
+        image = Image.new('1', (self.display.width, self.display.height))
+        draw = ImageDraw.Draw(image)
+        if expression == "happy":
+            draw.ellipse((30, 20, 50, 40), outline=255, fill=0)  # Eyes
+            draw.arc((20, 50, 70, 60), 0, 180, fill=255)  # Smile
+        elif expression == "sad":
+            draw.ellipse((30, 20, 50, 40), outline=255, fill=0)  # Eyes
+            draw.arc((20, 50, 70, 60), 180, 360, fill=255)  # Frown
+        self.display.image(image)
+        self.display.show()
+
+    def update_face(self, msg):
+        self.get_logger().info(f"Updating face to {msg.data}")
+        self.draw_face(msg.data)
+
+def main(args=None):
+    rclpy.init(args=args)
+    face_display_node = FaceDisplayNode()
+    rclpy.spin(face_display_node)
+    face_display_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+This node subscribes to the face_expression topic and updates the OLED display based on messages received (e.g., "happy", "sad", etc.).
+Node 2: Touch Sensor Node (touch_node.py)
+This node detects touch interactions and publishes the corresponding face expression.
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+import RPi.GPIO as GPIO
+from std_msgs.msg import String
+
+class TouchSensorNode(Node):
+    def __init__(self):
+        super().__init__('touch_sensor_node')
+        self.publisher_ = self.create_publisher(String, 'face_expression', 10)
+        self.touch_pin = 18
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.touch_pin, GPIO.IN)
+
+    def detect_touch(self):
+        while rclpy.ok():
+            if GPIO.input(self.touch_pin) == GPIO.HIGH:
+                self.get_logger().info('Touched! Publishing happy face')
+                msg = String()
+                msg.data = 'happy'
+                self.publisher_.publish(msg)
+            rclpy.sleep(1)
+
+def main(args=None):
+    rclpy.init(args=args)
+    touch_sensor_node = TouchSensorNode()
+    rclpy.spin(touch_sensor_node)
+    touch_sensor_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+When a touch is detected, this node publishes a message to the face_expression topic, changing the face display.
+Node 3: Sound Detection Node (sound_node.py)
+This node listens for sound input via a microphone and changes the robot's behavior based on sound levels. It publishes different face expressions or emotions based on the intensity of the sound detected.
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+import sounddevice as sd
+import numpy as np
+from std_msgs.msg import String
+
+class SoundDetectionNode(Node):
+    def __init__(self):
+        super().__init__('sound_detection_node')
+        self.publisher_ = self.create_publisher(String, 'face_expression', 10)
+        self.get_logger().info("Sound detection node started.")
+        self.listen_for_sound()
+
+    def audio_callback(self, indata, frames, time, status):
+        volume_norm = np.linalg.norm(indata) * 10
+        self.get_logger().info(f"Volume detected: {volume_norm}")
+        if volume_norm > 50:
+            self.get_logger().info('Loud sound detected! Publishing surprised face.')
+            msg = String()
+            msg.data = 'surprised'
+            self.publisher_.publish(msg)
+
+    def listen_for_sound(self):
+        with sd.InputStream(callback=self.audio_callback):
+            sd.sleep(10000)
+
+def main(args=None):
+    rclpy.init(args=args)
+    sound_detection_node = SoundDetectionNode()
+    rclpy.spin(sound_detection_node)
+    sound_detection_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+This node detects sound through the microphone and sends a "surprised" face command if a loud sound is detected.
+Node 4: Motor Control Node (motor_control_node.py)
+This node controls the servos for small movements like nodding or moving arms in response to interaction or random triggers.
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+import RPi.GPIO as GPIO
+import time
+
+class MotorControlNode(Node):
+    def __init__(self):
+        super().__init__('motor_control_node')
+        self.get_logger().info("Motor control node started.")
+        self.servo_pin = 17
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.servo_pin, GPIO.OUT)
+        self.servo = GPIO.PWM(self.servo_pin, 50)  # 50Hz frequency
+        self.servo.start(0)
+
+        self.move_servo(90)  # Initial position
+
+    def move_servo(self, angle):
+        duty = angle / 18 + 2
+        GPIO.output(self.servo_pin, True)
+        self.servo.ChangeDutyCycle(duty)
+        time.sleep(1)
+        GPIO.output(self.servo_pin, False)
+        self.servo.ChangeDutyCycle(0)
+
+    def random_movement(self):
+        while rclpy.ok():
+            angle = 0 if np.random.rand() > 0.5 else 90
+            self.move_servo(angle)
+            rclpy.sleep(3)
+
+def main(args=None):
+    rclpy.init(args=args)
+    motor_control_node = MotorControlNode()
+    rclpy.spin(motor_control_node)
+    motor_control_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+This node controls the servos to make simple movements like nodding the head. It can be triggered randomly or based on external inputs.
+Node 5: Bluetooth Connectivity Node (bluetooth_node.py)
+This node will handle Bluetooth communication to allow the bot to connect with a mobile app or receive commands from a phone.
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+import bluetooth
+
+class BluetoothNode(Node):
+    def __init__(self):
+        super().__init__('bluetooth_node')
+        self.publisher_ = self.create_publisher(String, 'face_expression', 10)
+        self.server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        self.server_sock.bind(("", bluetooth.PORT_ANY))
+        self.server_sock.listen(1)
+        self.port = self.server_sock.getsockname()[1]
+        self.get_logger().info(f"Bluetooth service started on port {self.port}")
+        self.bluetooth_service()
+
+    def bluetooth_service(self):
+        client_sock, address = self.server_sock.accept()
+        self.get_logger().info(f"Accepted connection from {address}")
+        try:
+            while True:
+                data = client_sock.recv(1024)
+                if data:
+                    self.get_logger().info(f"Received {data}")
+                    msg = String()
+                    msg.data = data.decode('utf-8')
+                    self.publisher_.publish(msg)
+        except OSError:
+            pass
+        client_sock.close()
+
+def main(args=None):
+    rclpy.init(args=args)
+    bluetooth_node = BluetoothNode()
+    rclpy.spin(bluetooth_node)
+    bluetooth_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+This node will enable Bluetooth communication, allowing the bot to interact with a mobile app by receiving and executing commands sent over Bluetooth.
+Integrating the ROS2 Package
+Now that we have all the nodes, you can organize them in your ROS2 package by following these steps:
+
+Add all Python files (like face_node.py, touch_node.py, sound_node.py, motor_control_node.py, and bluetooth_node.py) inside the eilik_bot/eilik_bot/ directory.
+
+Update the setup.py file to include entry points for all nodes:
+
+python
+Copy code
+from setuptools import setup
+from glob import glob
+import os
+
+package_name = 'eilik_bot'
+
+setup(
+    name=package_name,
+    version='0.0.1',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='vyshnavi',
+    maintainer_email='your-email@example.com',
+    description='Eilik-like robot companion package',
+    license='MIT',
+    entry_points={
+        'console_scripts': [
+            'face_node = eilik_bot.face_node:main',
+            'touch_node = eilik_bot.touch_node:main',
+            'sound_node = eilik_bot.sound_node:main',
+            'motor_control_node = eilik_bot.motor_control_node:main',
+            'bluetooth_node = eilik_bot.bluetooth_node:main',
+        ],
+    },
+)
+Build the Package:
+
+bash
+Copy code
+cd ~/ros2_ws/
+colcon build
+source install/setup.bash
+Run the Nodes: You can now launch the individual nodes by using the following commands:
+
+bash
+Copy code
+ros2 run eilik_bot face_node
+ros2 run eilik_bot touch_node
+ros2 run eilik_bot sound_node
+ros2 run eilik_bot motor_control_node
+ros2 run eilik_bot bluetooth_node
+
+
+Part 2: Software and Coding (Detailed Enhancements)
+1. ROS2 Package Creation Process
+Step-by-Step Process:
+
+Set up a ROS2 workspace and create a new package for your companion bot:
+
+bash
+Copy code
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+ros2 pkg create --build-type ament_python companion_bot
+In this package, create multiple Python files to handle various functionalities:
+
+face_node.py (controls OLED display)
+touch_node.py (handles touch sensor inputs)
+sound_node.py (processes sound sensor data)
+servo_node.py (controls servo movements for facial and body expressions)
+Set up topics and services in each node to communicate between the sensors and the microcontroller, allowing dynamic responses to inputs (e.g., showing a surprised expression when a sound is detected).
+
+2. Sample Code (face_node.py)
+Example code for controlling the OLED display and showing different expressions:
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+from PIL import Image, ImageDraw
+from Adafruit_SSD1306 import SSD1306_128_64
+
+class FaceNode(Node):
+    def __init__(self):
+        super().__init__('face_node')
+        self.display = SSD1306_128_64(rst=None)
+        self.display.begin()
+        self.display.clear()
+        self.display.display()
+        self.create_subscription(String, 'face_expression', self.show_expression, 10)
+
+    def show_expression(self, msg):
+        image = Image.new('1', (128, 64))
+        draw = ImageDraw.Draw(image)
+        if msg.data == 'happy':
+            draw.text((32, 20), ':)', fill=255)
+        elif msg.data == 'sad':
+            draw.text((32, 20), ':(', fill=255)
+        self.display.image(image)
+        self.display.display()
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = FaceNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+3. Error Handling and Debugging
+Implement robust error handling in each node. Example: In the face_node.py, handle cases where the OLED display might disconnect. Use try-except blocks to catch and log errors.
+
+4. C/C# Integration
+If certain tasks (e.g., Bluetooth communication) need performance optimizations, use C or C# for those specific modules. For example, using C# to handle complex audio processing or fast GPIO access could improve performance.
+
+5. Additional Code Samples
+Servo Control Example (servo_node.py):
+
+python
+Copy code
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Int32
+import servo_driver  # Hypothetical library for servo control
+
+class ServoNode(Node):
+    def __init__(self):
+        super().__init__('servo_node')
+        self.create_subscription(Int32, 'servo_position', self.move_servo, 10)
+
+    def move_servo(self, msg):
+        position = msg.data
+        servo_driver.set_position(position)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ServoNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+Part 2: Software and Coding (Expanded Details)
+6. Libraries and Dependencies
+To effectively implement the companion robot's functionalities, various libraries will be required. Below is a list of essential libraries, along with their installation commands:
+
+ROS2 Libraries: Ensure you have ROS2 installed. Use the following command to create your package:
+
+bash
+Copy code
+sudo apt install ros-<distro>-rclpy ros-<distro>-std-msgs
+Replace <distro> with your ROS2 distribution (e.g., foxy, galactic).
+
+Adafruit Libraries: For OLED display control, install the Adafruit libraries:
+
+bash
+Copy code
+pip install Adafruit-SSD1306
+pip install Pillow
+Servo Control Libraries: Depending on your servo drivers, you might need specific libraries. For example:
+
+bash
+Copy code
+pip install servo_driver
+7. Communication between Nodes
+Implementing communication between different nodes can be achieved using ROS2's pub/sub model:
+
+Publishing Data: In the touch_node.py, publish touch events:
+
+python
+Copy code
+self.publisher = self.create_publisher(String, 'touch_event', 10)
+self.publisher.publish(String(data='touched'))
+Subscribing to Data: In the face_node.py, subscribe to the touch events:
+
+python
+Copy code
+self.create_subscription(String, 'touch_event', self.react_to_touch, 10)
+8. Implementing AI/ML Capabilities
+To enhance interactivity, consider integrating basic AI capabilities:
+
+Machine Learning: Use libraries like TensorFlow or PyTorch for developing simple recognition algorithms (e.g., detecting user emotions via voice).
+
+bash
+Copy code
+pip install tensorflow
+Voice Recognition: Implement voice commands using libraries such as SpeechRecognition:
+
+bash
+Copy code
+pip install SpeechRecognition
+9. Behavior Customization and State Management
+To provide a more interactive experience, implement state management in your nodes. For example:
+
+State Management in face_node.py:
+python
+Copy code
+class FaceNode(Node):
+    def __init__(self):
+        super().__init__('face_node')
+        self.current_state = 'neutral'  # Initial state
+        # Rest of the initialization...
+
+    def react_to_touch(self, msg):
+        if msg.data == 'touched':
+            self.current_state = 'happy'  # Change state on touch
+            self.show_expression(self.current_state)
+10. Testing and Debugging
+Establish a systematic testing approach:
+
+Unit Testing: Use unittest or pytest to create test cases for individual functionalities.
+
+python
+Copy code
+import unittest
+
+class TestFaceNode(unittest.TestCase):
+    def test_show_expression(self):
+        # Mock the display and test show_expression functionality
+        pass
+Debugging: Utilize ROS2 logging for debugging:
+
+python
+Copy code
+self.get_logger().info('This is a log message')
+11. Enhancements and Features
+Consider implementing the following enhancements:
+
+Battery Monitoring: Use a voltage sensor to monitor battery status and publish a warning if the battery is low.
+Customizable Emotions: Allow users to set custom expressions through an interface or app.
+Remote Control: Implement a mobile app or web interface for remote control using MQTT or a similar protocol.
